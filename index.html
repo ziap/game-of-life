@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="JavaScript implementation of Conway's Game of Life">
+    <title>Conway's Game of Life</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            background: #121212;
+        }
+
+        html, body { width:100%; height:100%; }
+
+        canvas {
+            width: 100vmin;
+            margin: 0 calc(calc(100vw - 100vmin) / 2);
+        }
+    </style>
+</head>
+<body>
+    <canvas id="gol"></canvas>
+</body>
+<script>
+    ;(() => {
+
+        const size = 1000
+
+        function cell(frame, x, y) {
+            if (x < 0 || x >= size || y < 0 || y >= size) return 0;
+            return frame[size * x + y];
+        }
+
+        function Step(frame) {
+            new_frame = Array.from(frame)
+            for (let i = 0; i < size; i++) {
+                for (let j = 0; j < size; j++) {
+                    let neighbors = 0;
+                    neighbors += cell(frame, i - 1, j - 1)
+                    neighbors += cell(frame, i, j - 1)
+                    neighbors += cell(frame, i + 1, j - 1)
+                    neighbors += cell(frame, i - 1, j)
+                    neighbors += cell(frame, i + 1, j)
+                    neighbors += cell(frame, i - 1, j + 1)
+                    neighbors += cell(frame, i, j + 1)
+                    neighbors += cell(frame, i + 1, j + 1)
+                    if (neighbors > 3 || neighbors < 2) new_frame[size * i + j] = 0;
+                    else if (frame[size * i + j] == 0 && neighbors == 3) new_frame[size * i + j] = 1;
+                    else new_frame[size * i + j] = frame[size * i + j];
+                }
+            }
+            return new_frame;
+        }
+
+        const canvas = document.getElementById('gol')
+        const ctx = canvas.getContext('2d')
+        canvas.style.imageRendering = 'pixelated'
+        ctx.imageSmoothingEnabled = false
+
+        canvas.width = canvas.height = size
+
+        let next_frame = Array.from({length: size * size}, () => Math.random() < 0.1)
+
+        window.addEventListener('keypress', e => (e.key == ' ') && (next_frame = Array.from({length: size * size}, () => Math.random() < 0.1)))
+
+        const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height)
+        const {data} = imageData
+
+        for (let i = 0; i < data.length; i+= 4) data[i + 3] = 255
+
+        ;(function update(frame) {
+
+            for (let i = 0; i < data.length; i+= 4) {
+                if (next_frame[i >>> 2]) {
+                    data[i] = 0
+                    data[i + 1] = 168
+                    data[i + 2] = 255
+                } else {
+                    data[i] = 30
+                    data[i + 1] = 30
+                    data[i + 2] = 30
+                }
+            }
+
+            next_frame = Step(next_frame)
+            
+            ctx.putImageData(imageData, 0, 0)
+            requestAnimationFrame(update)
+        })(1)
+    })()
+</script>
+</html>
