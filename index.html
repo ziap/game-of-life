@@ -79,9 +79,9 @@
 
         canvas.width = canvas.height = size
 
-        let next_frame = Array.from({length: size * size}, () => Math.random() < 0.1)
+        let next_frame = Array.from({length: size * size}, () => 0|2*Math.random())
 
-        window.addEventListener('keypress', e => (e.key == ' ') && (next_frame = Array.from({length: size * size}, () => Math.random() < 0.1)))
+        window.addEventListener('keypress', e => (e.key == ' ') && (next_frame = Array.from({length: size * size}, () => 0|2*Math.random())))
 
         const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height)
         const {data} = imageData
@@ -107,6 +107,6 @@
         this.stop = () => cancelAnimationFrame(updator)
     }
 
-    let gol = new GOL(800, 0.01)
+    let gol = new GOL(500, 0.01)
 </script>
 </html>
